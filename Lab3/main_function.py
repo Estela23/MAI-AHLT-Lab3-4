@@ -3,7 +3,7 @@ from check_dd_interaction import check_interaction
 from os import listdir
 from xml.dom.minidom import parse
 import sys
-from eval import evaluator
+# from eval import evaluator
 
 
 datadir = sys.argv[1]
@@ -13,18 +13,18 @@ with open(outfile, 'w') as output:
     # process each file in directory
     for f in listdir(datadir):
         # parse XML file , obtaining a DOM tree
-        tree = parse(datadir + " / " + f)
+        tree = parse(datadir + "/" + f)
         # process each sentence in the file
         sentences = tree.getElementsByTagName("sentence")
         for s in sentences:
-            sid = s.attributes ["id"].value # get sentence id
-            stext = s.attributes ["text"].value # get sentence text
+            sid = s.attributes["id"].value  # get sentence id
+            stext = s.attributes["text"].value  # get sentence text
 
             # load sentence entities into a dictionary
             entities = {}
             ents = s.getElementsByTagName("entity")
             for e in ents:
-                eid = e.attributes ["id"].value
+                eid = e.attributes["id"].value
                 entities[eid] = e.attributes["charOffset"].value.split("-")
 
             # Tokenize , tag , and parse sentence
@@ -40,4 +40,4 @@ with open(outfile, 'w') as output:
                     print(sid + "|" + id_e1 + "|" + id_e2 + "|" + ddi_type, file=output)
 
 # get performance score
-evaluator.evaluate("DDI", datadir, outfile)
+# evaluator.evaluate("DDI", datadir, outfile)
