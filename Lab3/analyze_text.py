@@ -4,7 +4,7 @@ from nltk.parse.corenlp import CoreNLPDependencyParser
 my_parser = CoreNLPDependencyParser(url="http://localhost:9000")
 
 
-def analyze(s):
+def analyze(my_text):
     """
     Task:
     Given one sentence, sends it to CoreNLP to obtain the tokens, tags, and dependency tree.
@@ -26,4 +26,11 @@ def analyze(s):
     """
 
     # parse text (as many times as needed). Watch the comma!
-    mytree, = my_parser.raw_parse(mytext)
+    my_tree, = my_parser.raw_parse(my_text)
+
+    # TODO: Add offset to the tree
+    analyzed_text = my_tree
+
+    return analyzed_text
+
+
