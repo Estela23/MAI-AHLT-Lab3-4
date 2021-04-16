@@ -7,7 +7,6 @@ import sys
 
 # TODO: trying to plot dependency tree
 from nltk.parse import DependencyGraph
-from nltk.draw.tree import TreeView
 
 
 datadir = sys.argv[1]
