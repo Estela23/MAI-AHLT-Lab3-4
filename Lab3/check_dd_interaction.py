@@ -15,14 +15,14 @@ def check_interaction(analysis, entities, e1, e2):
     rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
     rule_h = rule_head(analysis, entities, e1, e2)
     rule_subject2 = rule_subject(analysis, entities, e1, e2)
-    if rule_subject2 is not None:
-        return rule_subject2
-    '''if rule_s_o is not None:
+    if rule_s_o is not None:
         return rule_s_o
     elif rule_v_m is not None:
         return rule_v_m
     elif rule_h is not None:
-        return rule_h'''
+        return rule_h
+    elif rule_subject2 is not None:
+        return rule_subject2
     return None
 
 
@@ -133,16 +133,27 @@ def rule_subject_object(analysis, entities, e1, e2):
             elif analysis.nodes[head_e1]['lemma'] in inter:
                 return 'int'
             elif analysis.nodes[head_e1]['lemma'] in advice:
-                return 'advice'
+                return 'advise'
 
     return None
 
 
+def rule_advise(analysis, entities, e1, e2):
+    rule_advised = ['consider', 'may', 'possible', 'recommended', 'caution', 'should', 'overdose', 'advise', 'advised']
+    lengths = {key: len(value) for key, value in entities.items()}
+    if lengths[e1] == 2 and lengths[e2] == 2:
+        for i in range(1, len(analysis.nodes) + 1):
+            if analysis.nodes[i]['lemma'] in rule_advised:
+                return "advise"
+    return None
+
+
 def rule_verb_middle(analysis, entities, e1, e2):
-    effect = ['administer', 'potentiate', 'prevent']
-    mechanism = ['reduce', 'increase', 'decrease']
+    effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
+              'influence', 'prevent', 'antagonize', 'augment', 'block', 'cause']
+    mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance', 'metabolize', 'inhibit', 'lower']
     inter = ['interact', 'interaction']
-    advice = ['consider']
+    advice = ['consider', 'may', 'possible', 'recommended', 'caution', 'should', 'overdose', 'advise', 'advised']
     lengths = {key: len(value) for key, value in entities.items()}
 
     start_e1 = int(entities[e1][0])
@@ -160,15 +171,16 @@ def rule_verb_middle(analysis, entities, e1, e2):
                     elif analysis.nodes[i]['lemma'] in inter:
                         return 'int'
                     elif analysis.nodes[i]['lemma'] in advice:
-                        return "advice"
+                        return "advise"
     return None
 
 
 def rule_head(analysis, entities, e1, e2):
-    effect = ['administer', 'potentiate', 'prevent']
-    mechanism = ['reduce', 'increase', 'decrease']
+    effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
+              'influence', 'inhibit', 'antagonize', 'augment', 'block']
+    mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance']
     inter = ['interact', 'interaction']
-    advice = ["consider"]
+    advice = ['consider']
 
     head_e1 = None
     head_e2 = None
@@ -192,6 +204,6 @@ def rule_head(analysis, entities, e1, e2):
                 elif analysis.nodes[head_e1]['lemma'] in inter:
                     return 'int'
                 elif analysis.nodes[head_e1]['lemma'] in advice:
-                    return 'advice'
+                    return 'advise'
 
     return None
