@@ -1,0 +1,14 @@
+DDI-DrugBank.d153.s4|DDI-DrugBank.d153.s4.e0|DDI-DrugBank.d153.s4.e2|mechanism
+DDI-DrugBank.d153.s4|DDI-DrugBank.d153.s4.e1|DDI-DrugBank.d153.s4.e2|mechanism
+DDI-DrugBank.d213.s0|DDI-DrugBank.d213.s0.e0|DDI-DrugBank.d213.s0.e2|mechanism
+DDI-DrugBank.d213.s0|DDI-DrugBank.d213.s0.e3|DDI-DrugBank.d213.s0.e4|mechanism
+DDI-DrugBank.d429.s0|DDI-DrugBank.d429.s0.e2|DDI-DrugBank.d429.s0.e4|mechanism
+DDI-DrugBank.d429.s0|DDI-DrugBank.d429.s0.e3|DDI-DrugBank.d429.s0.e4|mechanism
+DDI-DrugBank.d395.s17|DDI-DrugBank.d395.s17.e0|DDI-DrugBank.d395.s17.e3|mechanism
+DDI-DrugBank.d219.s11|DDI-DrugBank.d219.s11.e0|DDI-DrugBank.d219.s11.e1|mechanism
+DDI-DrugBank.d776.s13|DDI-DrugBank.d776.s13.e1|DDI-DrugBank.d776.s13.e2|mechanism
+DDI-DrugBank.d95.s1|DDI-DrugBank.d95.s1.e0|DDI-DrugBank.d95.s1.e2|mechanism
+DDI-DrugBank.d736.s3|DDI-DrugBank.d736.s3.e0|DDI-DrugBank.d736.s3.e1|mechanism
+DDI-DrugBank.d639.s2|DDI-DrugBank.d639.s2.e0|DDI-DrugBank.d639.s2.e8|mechanism
+DDI-DrugBank.d658.s0|DDI-DrugBank.d658.s0.e0|DDI-DrugBank.d658.s0.e1|mechanism
+DDI-DrugBank.d328.s10|DDI-DrugBank.d328.s10.e1|DDI-DrugBank.d328.s10.e2|mechanism
