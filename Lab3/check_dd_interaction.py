@@ -10,20 +10,8 @@ def check_interaction(analysis, entities, e1, e2):
         Returns the type of interaction (’effect’, ’mechanism’, ’advice’, ’int’) between e1 and e2 expressed by
         the sentence, or ’None’ if no interaction is described.
     """
-    rule_subject2 = rule_subject(analysis, entities, e1, e2)
-    if rule_subject2 is not None:
-        return rule_subject2
-    else:
-        rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
-        if rule_v_m is not None:
-            return rule_v_m
-        else:
-            rule_h = rule_head(analysis, entities, e1, e2)
-            if rule_h is not None:
-                return rule_h
-            else:
-                return None
-    '''rule_subject2 = rule_subject(analysis, entities, e1, e2)
+    # Other version
+    """rule_subject2 = rule_subject(analysis, entities, e1, e2)
     if rule_subject2 is not None:
         return rule_subject2
     else:
@@ -39,8 +27,21 @@ def check_interaction(analysis, entities, e1, e2):
                 if advise is not None:
                     return advise
                 else:
-                    return None'''
-    return None
+                    return None"""
+
+    rule_subject2 = rule_subject(analysis, entities, e1, e2)
+    if rule_subject2 is not None:
+        return rule_subject2
+    else:
+        rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
+        if rule_v_m is not None:
+            return rule_v_m
+        else:
+            rule_h = rule_head(analysis, entities, e1, e2)
+            if rule_h is not None:
+                return rule_h
+            else:
+                return None
 
 
 def rule_subject(analysis, entities, e1, e2):
@@ -116,11 +117,16 @@ def rule_subject(analysis, entities, e1, e2):
 def rule_subject_object(analysis, entities, e1, e2):
     rel_e1 = ""
     rel_e2 = ""
-    effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
+    """effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
               'influence', 'inhibit', 'antagonize', 'augment', 'block']
     mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance']
     inter = ['interact', 'interaction']
-    advice = ['consider']
+    advice = ['consider']"""
+    effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
+              'influence', 'prevent', 'antagonize', 'augment', 'block', 'cause']
+    mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance', 'metabolize', 'inhibit', 'lower']
+    inter = ['interact', 'interaction']
+    advice = ['consider', 'may', 'possible', 'recommended', 'caution', 'should', 'overdose', 'advise', 'advised']
     lengths = {key: len(value) for key, value in entities.items()}
     if lengths[e1] == 2 and lengths[e2] == 2:
         for key, value in analysis.nodes.items():
@@ -169,8 +175,7 @@ def rule_verb_middle(analysis, entities, e1, e2):
     if lengths[e1] == 2 and lengths[e2] == 2:
         for i in range(1, len(analysis.nodes) + 1):
             if "tag" in analysis.nodes[i] and "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
-                if analysis.nodes[i]["tag"] == "VB" and analysis.nodes[i]["start"] > start_e1 and analysis.nodes[i][
-                    "end"] < start_e2:
+                if analysis.nodes[i]["tag"] == "VB" and analysis.nodes[i]["start"] > start_e1 and analysis.nodes[i]["end"] < start_e2:
                     if analysis.nodes[i]['lemma'] in effect:
                         return 'effect'
                     elif analysis.nodes[i]['lemma'] in mechanism:
@@ -184,10 +189,15 @@ def rule_verb_middle(analysis, entities, e1, e2):
 
 def rule_head(analysis, entities, e1, e2):
     effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
+              'influence', 'prevent', 'antagonize', 'augment', 'block', 'cause']
+    mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance', 'metabolize', 'inhibit', 'lower']
+    inter = ['interact', 'interaction']
+    advice = ['consider', 'may', 'possible', 'recommended', 'caution', 'should', 'overdose', 'advise', 'advised']
+    """effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
               'influence', 'inhibit', 'antagonize', 'augment', 'block']
     mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance']
     inter = ['interact', 'interaction']
-    advice = ['consider']
+    advice = ['consider']"""
 
     head_e1 = None
     head_e2 = None
