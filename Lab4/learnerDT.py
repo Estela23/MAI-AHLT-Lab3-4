@@ -4,7 +4,9 @@ import pickle
 from matplotlib import pyplot as plt
 from sklearn.preprocessing import OneHotEncoder
 import pandas as pd
-
+def find_max_list(list):
+    list_len = [len(i) for i in list]
+    return max(list_len)
 
 def preprocess(data, model):
     """
@@ -17,23 +19,34 @@ def preprocess(data, model):
 
     """
 
-    X_tokens = [data[i][4] for i in range(len(data))]
+    X_tokens = [data[i][4:] for i in range(len(data))]
+    flat_list = [item for sublist in X_tokens for item in sublist]
     Y_tokens = [data[j][3] if len(data[j]) > 4 else '' for j in range(len(data))]
-
+    max_value=find_max_list(X_tokens)
     if model == "DT":
-        features = ["Feature " + str(i + 1) for i in range(len(X_tokens[0]))]
+        features = ["Feature " + str(i + 1) for i in range(0, max_value)]
         df_prov = pd.DataFrame(X_tokens, columns=features)
 
         blank_indexes = [i for i in range(df_prov.shape[0]) if df_prov.iloc[i][0] is None]
 
-        Y_sentences = [Y_tokens[i] for i in range(len(Y_tokens)) if i not in blank_indexes]
+        #Y_sentences = [Y_tokens[i] for i in range(len(Y_tokens)) if i not in blank_indexes]
 
         df = df_prov.copy()
         df = df.drop(df.index[blank_indexes])
-
+        df_prov = pd.DataFrame(X_tokens)
         encoder = OneHotEncoder()
-        encoded_df = encoder.fit_transform(df)
+        encoded_df = encoder.fit_transform(df_prov)
         X_sentences = encoded_df
+
+
+        file = open("devel.feat", "r")
+        data_init = file.readlines()
+        data = [x.strip().split("\t") for x in data_init]
+        X_tokens2=[[element for element in data[i] if element in flat_list] for i in range(len(data))]
+        '''for i in range(len(data)):
+            X_tokens2.append([element for element in data[i] if element in flat_list])'''
+        df_prov2 = pd.DataFrame(X_tokens2, columns=features)
+        encoded_df2 = encoder.transform(df_prov2)
 
         """
         df = df_prov.copy()
@@ -74,7 +87,7 @@ def preprocess(data, model):
                 X_sentences.append(aux_x)
                 aux_x = []
 
-    return X_sentences, Y_sentences
+    return X_sentences, Y_tokens
 
 training_model = sys.argv[1]      # trainer.dt
 training_file = sys.argv[2]   # train.feat
@@ -91,9 +104,9 @@ classifier.fit(X_sentences, Y_sentences)
 
 features = ["Feature " + str(i + 1) for i in range(X_sentences.shape[1])]
 
-fig = plt.figure(figsize=(25, 20))
-_ = tree.plot_tree(classifier, feature_names=features, class_names=classifier.classes_, filled=True)
-fig.savefig("decistion_tree.png")
+#fig = plt.figure(figsize=(25, 20))
+#_ = tree.plot_tree(classifier, feature_names=features, class_names=classifier.classes_, filled=True)
+#fig.savefig("decistion_tree.png")
 
 
 # Save the model to disk
