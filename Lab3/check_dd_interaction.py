@@ -188,7 +188,7 @@ def rule_verb_middle(analysis, entities, e1, e2):
     if lengths[e1] == 2 and lengths[e2] == 2:
         for i in range(1, len(analysis.nodes) + 1):
             if "tag" in analysis.nodes[i] and "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
-                if analysis.nodes[i]["tag"] == "VB" and analysis.nodes[i]["start"] > start_e1 and \
+                if analysis.nodes[i]["tag"] in ["VB", "MD"] and analysis.nodes[i]["start"] > start_e1 and \
                         analysis.nodes[i]["end"] < start_e2:
                     if analysis.nodes[i]['lemma'] in effect:
                         return 'effect'
