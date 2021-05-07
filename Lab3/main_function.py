@@ -5,10 +5,6 @@ from xml.dom.minidom import parse
 import sys
 # from eval import evaluator
 
-# TODO: trying to plot dependency tree
-from nltk.parse import DependencyGraph
-
-
 datadir = sys.argv[1]
 outfile = sys.argv[2]
 
@@ -33,10 +29,6 @@ with open(outfile, 'w') as output:
             # Tokenize , tag , and parse sentence
             if stext != '':
                 analysis = analyze(stext)
-                """# TODO: trying to see dependency tree
-                graph = DependencyGraph(analysis)
-                TreeView(graph)._cframe.print_to_file('tree.ps')"""
-
                 # for each pair in the sentence , decide whether it is DDI and its type
                 pairs = s.getElementsByTagName("pair")
                 for p in pairs:
