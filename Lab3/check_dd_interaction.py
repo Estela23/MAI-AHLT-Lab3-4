@@ -10,7 +10,12 @@ def check_interaction(analysis, entities, e1, e2):
         Returns the type of interaction (’effect’, ’mechanism’, ’advice’, ’int’) between e1 and e2 expressed by
         the sentence, or ’None’ if no interaction is described.
     """
-    rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
+
+    rule_subject2 = rule_subject(analysis, entities, e1, e2)
+    if rule_subject2 is not None:
+        return rule_subject2
+    return None
+    '''rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
     if rule_v_m is not None:
         return rule_v_m
     else:
@@ -22,7 +27,7 @@ def check_interaction(analysis, entities, e1, e2):
             if advise is not None:
                 return advise
             else:
-                return None
+                return None'''
     '''else:
         rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
         if rule_v_m is not None:
@@ -69,15 +74,15 @@ def rule_subject(analysis, entities, e1, e2):
         if key!=0:
             if analysis.nodes[key]['rel']=='nsubj':
                 nsubj.append(analysis.nodes[key]['word'])
-            elif analysis.nodes[key]['rel']=='dobj':
+            elif analysis.nodes[key]['rel']=='obj':
                 dobj.append(analysis.nodes[key]['word'])
             elif analysis.nodes[key]['head']!=None:
                 k = analysis.nodes[key]['head']
-                while analysis.nodes[k]['rel'] != 'nsubj' and analysis.nodes[k]['rel'] != 'dobj' and analysis.nodes[k]['head'] != 0 and analysis.nodes[k]['head']!=None:
+                while analysis.nodes[k]['rel'] != 'nsubj' and analysis.nodes[k]['rel'] != 'obj' and analysis.nodes[k]['head'] != 0 and analysis.nodes[k]['head']!=None:
                     k = analysis.nodes[k]['head']
                 if analysis.nodes[k]['rel'] == 'nsubj':
                     nsubj.append(analysis.nodes[key]['word'])
-                elif analysis.nodes[k]['rel'] == 'dobj':
+                elif analysis.nodes[k]['rel'] == 'obj':
                     dobj.append(analysis.nodes[key]['word'])
     verb_1 = ""
     verb_obj_1 = ""
@@ -85,7 +90,7 @@ def rule_subject(analysis, entities, e1, e2):
     verb_obj_2 = ""
     if len(nsubj) > 0 and len(dobj) > 0:
         lengths = {key: len(value) for key, value in entities.items()}
-        if lengths[e1] == 2 and lengths[e2] == 2:
+        if lengths[e1] == 2 and lengths[e2] == 2:#TODO Arreglar analyze, o consultar como arreglar analyze
             for key, value in analysis.nodes.items():
                 if 'start' in analysis.nodes[key] and 'end' in analysis.nodes[key]:
                     if analysis.nodes[key]['start'] == int(entities[e1][0]) and analysis.nodes[key]['end'] == int(
@@ -231,7 +236,7 @@ def rule_subject_object(analysis, entities, e1, e2):
                         entities[e2][1]):
                     rel_e2 = analysis.nodes[key]['rel']
                     head_e2 = analysis.nodes[key]['head']
-        if rel_e1 == 'nsubj' and rel_e2 == 'dobj' and head_e1 == head_e2:
+        if rel_e1 == 'nsubj' and rel_e2 == 'obl' and head_e1 == head_e2:
             if analysis.nodes[head_e1]['lemma'] in effect:
                 return 'effect'
             elif analysis.nodes[head_e1]['lemma'] in mechanism:
