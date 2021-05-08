@@ -1,10 +1,9 @@
 # Main function copied from the slides of the presentation
+from analyze_text import analyze
 from extract_features import extract_features
 from os import listdir
 from xml.dom.minidom import parse
 import sys
-
-from Lab3.analyze_text import analyze
 
 datadir = sys.argv[1]
 outfile = sys.argv[3]
