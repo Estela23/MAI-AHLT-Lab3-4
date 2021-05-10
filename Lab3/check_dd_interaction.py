@@ -237,3 +237,4 @@ def rule_head(analysis, entities, e1, e2):
                     return 'advise'
 
     return None
+

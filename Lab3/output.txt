@@ -1820,3 +1820,4 @@ DDI-DrugBank.d328.s49|DDI-DrugBank.d328.s49.e0|DDI-DrugBank.d328.s49.e1|advise
 DDI-DrugBank.d328.s49|DDI-DrugBank.d328.s49.e0|DDI-DrugBank.d328.s49.e2|advise
 DDI-DrugBank.d328.s49|DDI-DrugBank.d328.s49.e1|DDI-DrugBank.d328.s49.e2|advise
 DDI-DrugBank.d759.s0|DDI-DrugBank.d759.s0.e0|DDI-DrugBank.d759.s0.e1|effect
+
