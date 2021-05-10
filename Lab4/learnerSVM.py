@@ -36,11 +36,11 @@ training_file = sys.argv[2]   # train.feat
 file = open(training_file, "r")
 data_init = file.readlines()
 data = [x.strip().split("\t") for x in data_init]
-file = open("devel.feat", "r")
+file = open("test.feat", "r")
 data_init = file.readlines()
-data_devel = [x.strip().split("\t") for x in data_init]
+data_test = [x.strip().split("\t") for x in data_init]
 
-X_sentences, Y_sentences = preprocess(data, data_devel)
+X_sentences, Y_sentences = preprocess(data, data_test)
 
 # Creating and training the Decision Tree model
 classifier = svm.SVC()

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document id="DDI-MedLine.d134">
-    <sentence id="DDI-MedLine.d134.s0" text="[Dose-time effects of competitive displacement of radiopertechnetate by sodium perchlorate following oral and intravenous administration]&#xd;&#xa;The effect of various doses of sodium perchlorate in several dose fractions on the extent and the time scale of displacement of radiopertechnetate, in dependence on application mode, was studied. ">
+    <sentence id="DDI-MedLine.d134.s0" text="[Dose-time effects of competitive displacement of radiopertechnetate by sodium perchlorate following oral and intravenous administration] The effect of various doses of sodium perchlorate in several dose fractions on the extent and the time scale of displacement of radiopertechnetate, in dependence on application mode, was studied. ">
         <entity id="DDI-MedLine.d134.s0.e0" charOffset="50-67"
             type="drug" text="radiopertechnetate"/>
         <entity id="DDI-MedLine.d134.s0.e1" charOffset="72-89"

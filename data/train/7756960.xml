@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document id="DDI-MedLine.d4">
-    <sentence id="DDI-MedLine.d4.s0" text="[The effect of sandimmune on the activity of mixed-function mono-oxidases in the liver microsomes]&#xd;&#xa;The effects of the immunodepressant--the drug sandimmune--on hepatic microsomal monooxygenase activities were studied. ">
+    <sentence id="DDI-MedLine.d4.s0" text="[The effect of sandimmune on the activity of mixed-function mono-oxidases in the liver microsomes] The effects of the immunodepressant--the drug sandimmune--on hepatic microsomal monooxygenase activities were studied. ">
         <entity id="DDI-MedLine.d4.s0.e0" charOffset="15-24"
             type="brand" text="sandimmune"/>
         <entity id="DDI-MedLine.d4.s0.e1" charOffset="119-134"

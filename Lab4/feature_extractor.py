@@ -10,7 +10,8 @@ outfile = sys.argv[3]
 
 with open(outfile, 'w') as output:
     # process each file in directory
-    for f in listdir(datadir):
+    for index_file, f in enumerate(listdir(datadir)):
+        print(index_file, " - ", f)
         # parse XML file, obtaining a DOM tree
         tree = parse(datadir + "/" + f)
         # process each sentence in the file
