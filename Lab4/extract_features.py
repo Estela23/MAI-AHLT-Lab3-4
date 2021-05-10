@@ -1,10 +1,10 @@
 def extract_features(tree, entities, e1, e2):
     """
     Task: Given an analyzed sentence and two target entities, compute a
-    featurevector for this  classification  example.
-    Input:tree: a DependencyGraph object with  all  sentence  information.
-    entities: A list of all entities in the sentence(id and offsets).
-    e1, e2: ids of the two entities to be checked for an  interaction
+    feature vector for this classification example.
+    Input: tree: a DependencyGraph object with all sentence information.
+           entities: A list of all entities in the sentence(id and offsets).
+           e1, e2: ids of the two entities to be checked for an interaction
     Output:
     A vector of binary features.
     Features are binary and vectors are in sparse representation(i.e. only active
@@ -19,6 +19,7 @@ def extract_features(tree, entities, e1, e2):
      """
     features = []
 
+    # Check if there is a verb in the middle and its type with respect to the lists of verbs
     rule_v_m = rule_verb_middle(tree, entities, e1, e2)
     if rule_v_m is not None:
         features.append(rule_v_m)
@@ -28,7 +29,7 @@ def extract_features(tree, entities, e1, e2):
     if paths is not None:
         features.append("path1=" + paths)
 
-    # TODO: aquí estás creando dos paths pero solo devuelves uno (ninguno en verdad)... path de cada entity hasta el ROOT de la frase
+    # Checks whether an entity is above the other and returns the path between them
     paths = path_entities(tree, entities, e1, e2)
     if paths is not None:
         features.append("path_above=" + paths)
@@ -38,14 +39,17 @@ def extract_features(tree, entities, e1, e2):
     features.append("pos_e1=" + pos_entities[0])
     features.append("pos_e2=" + pos_entities[1])
 
-    # TODO: todo lo referente al LCS lo haría en la misma función para no tener que repetir procesos de búsqueda
+    # Some information about the Least Common Subsumer of the entities
     LCS_results = LCS(tree, entities, e1, e2)
     if LCS_results is not None:
         features.append("LCSpostag=" + LCS_results[0])
         features.append("LCSword=" + LCS_results[1])
         features.append("LCSlemma=" + LCS_results[2])
+        features.append("path_e1_LCS=" + LCS_results[3])
+        features.append("path_e2_LCS=" + LCS_results[4])
+        features.append("path_e1_LCS_e2=" + LCS_results[5])
 
-    # TODO: sobran las comprobaciones todas
+    # Extracts the 'rel' parameter from the entities, their role inside the sentence
     rel_entities = obtain_rel_entities(tree, entities, e1, e2)
     if rel_entities is not None:
         if rel_entities[0] != "":
@@ -53,14 +57,12 @@ def extract_features(tree, entities, e1, e2):
         if rel_entities[1] != "":
             features.append("RelE2=" + rel_entities[1])
 
-    # TODO:
-    path_LCS = obtain_path_lcs(tree, entities, e1, e2)
-    if path_LCS is not None:
-        if path_LCS[0] != "":
-            features.append("path_LCS1=" + path_LCS[0])
-        if path_LCS[1] != "":
-            features.append("path_LCS2=" + path_LCS[1])
     return features
+
+
+######################################################################################################
+#####                   Auxiliary functions to extract each feature or features                  #####
+######################################################################################################
 
 
 def rule_verb_middle(analysis, entities, e1, e2):
@@ -101,7 +103,7 @@ def path_verbs(analysis, entities, e1, e2):
         if lengths[e1] == 2 and lengths[e2] == 2:
             end_e1 = int(entities[e1][1])
             end_e2 = int(entities[e2][1])
-            for i in range(1, len(analysis.nodes) + 1):     # TODO quizás con un while se puede optimizar esto
+            for i in range(1, len(analysis.nodes) + 1):
                 if "tag" in analysis.nodes[i] and "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
                     if analysis.nodes[i]["tag"] in ["VB", "VBD", "MD"]:
                         aux1 = analysis.nodes[analysis.nodes[i]["head"]]    # TODO: qué querías hacer aquí? porque estos aux1 y aux2 son iguales..
@@ -129,7 +131,10 @@ def path_verbs(analysis, entities, e1, e2):
     return None
 
 
-def path_entities(analysis, entities, e1, e2):    # TODO: comprobar si una entity está encima de la otra y sacar el path
+def path_entities(analysis, entities, e1, e2):
+    """
+    :returns: checks whether an entity is above the other and returns the corresponding path
+    """
     first_entity = ""
     second_entity = ""
     lengths = {key: len(value) for key, value in entities.items()}
@@ -141,7 +146,7 @@ def path_entities(analysis, entities, e1, e2):    # TODO: comprobar si una entit
         if lengths[e1] == 2 and lengths[e2] == 2:
             end_e1 = int(entities[e1][1])
             end_e2 = int(entities[e2][1])
-            for i in range(1, len(analysis.nodes) + 1):     # TODO quizás con un while se puede optimizar esto, o incluso eliminar el bucle teniendo en cuenta el offset
+            for i in range(1, len(analysis.nodes) + 1):
                 if "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
                     if analysis.nodes[i]["start"] == start_e1 and analysis.nodes[i]["end"] == end_e1:
                         first_entity = analysis.nodes[i]
@@ -152,15 +157,17 @@ def path_entities(analysis, entities, e1, e2):    # TODO: comprobar si una entit
                 path_e1_above = ""
                 while aux1["head"] is not None and "start" in aux1 and "end" in aux1 and aux1["start"] != start_e2 and \
                         aux1["end"] != end_e2:
-                    aux1 = analysis.nodes[aux1["head"]]  # TODO: aquí el aux1[rel] puede ser None si el anterior fue ROOT, no queremos esto, no?
+                    aux1 = analysis.nodes[aux1["head"]]
                     path_e1_above = path_e1_above + "/" + str(aux1["rel"])
+
                 aux2 = second_entity
                 path_e2_above = ""
                 while aux2['head'] is not None and "start" in aux2 and "end" in aux2 and aux2["start"] != start_e1 and \
                         aux2["end"] != end_e1:
-                    aux2 = analysis.nodes[aux2["head"]]     # TODO: aquí pasa lo mismo, acaba en ROOT/None
+                    aux2 = analysis.nodes[aux2["head"]]
                     path_e2_above = path_e2_above + "/" + str(aux2["rel"])
-                if "start" in aux1 and "end" in aux1:   # TODO: acaba en el ROOT y después None no devuelve ningún path...
+
+                if "start" in aux1 and "end" in aux1:
                     if aux1["start"] == start_e2 and aux1["end"] == end_e2:
                         flag_1 = True
                 if "start" in aux2 and "end" in aux2:
@@ -176,6 +183,9 @@ def path_entities(analysis, entities, e1, e2):    # TODO: comprobar si una entit
 
 
 def part_of_speech_entities(analysis, entities, e1, e2):
+    """
+    :return: part of speech tag of the two entities
+    """
     pos_first_entity = ""
     pos_second_entity = ""
     lengths = {key: len(value) for key, value in entities.items()}
@@ -183,7 +193,7 @@ def part_of_speech_entities(analysis, entities, e1, e2):
         start_e1 = int(entities[e1][0])
         start_e2 = int(entities[e2][0])
         if lengths[e1] == 2 and lengths[e2] == 2:
-            for i in range(1, len(analysis.nodes) + 1):     # TODO: lo mismo, este bucle podría optimizarse creo sin necesidad de mirar todo, solo con el offset
+            for i in range(1, len(analysis.nodes) + 1):
                 if "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
                     if analysis.nodes[i]["start"] == start_e1 and analysis.nodes[i]["tag"] is not None:
                         pos_first_entity = analysis.nodes[i]["tag"]
@@ -194,6 +204,10 @@ def part_of_speech_entities(analysis, entities, e1, e2):
 
 
 def LCS(tree, entities, e1, e2):
+    """
+    :return: a list with the tag, word, lemma of the LCS of the entities and
+             3 paths: from e1 to LCS, from e2 to LCS and from e1 to e2 going through LCS
+    """
     first_entity_tree = ""
     second_entity_tree = ""
     lengths = {key: len(value) for key, value in entities.items()}
@@ -201,12 +215,14 @@ def LCS(tree, entities, e1, e2):
         start_e1 = int(entities[e1][0])
         start_e2 = int(entities[e2][0])
         if lengths[e1] == 2 and lengths[e2] == 2:
-            for i in range(1, len(tree.nodes) + 1):     # TODO: Lo de siempre, creo que este for no hace falta o se puede mejorar
+            for i in range(1, len(tree.nodes) + 1):
                 if "start" in tree.nodes[i] and "end" in tree.nodes[i]:
                     if tree.nodes[i]["start"] == start_e1:
                         first_entity_tree = tree.nodes[i]
                     elif tree.nodes[i]["start"] == start_e2:
                         second_entity_tree = tree.nodes[i]
+
+    # Save in the lists all the tokens above (in the dependency tree) each entity
     if first_entity_tree != "" and second_entity_tree != "":
         list_first_entity = []
         list_second_entity = []
@@ -224,87 +240,52 @@ def LCS(tree, entities, e1, e2):
         all_common_subsumers = [elem for elem in list_first_entity if elem in list_second_entity]
         if all_common_subsumers:
             least_common_subsumer = all_common_subsumers[0]
-            results.append(least_common_subsumer["tag"])     # TODO: quizás además el tipo de verbo de entre las listas
+            results.append(least_common_subsumer["tag"])
             results.append(least_common_subsumer["word"])
             results.append(least_common_subsumer["lemma"])
+
+            # Paths between e1, LCS and e2
+            # We remove from the list the common subsumers that are not the LCS to create the paths e1->LCS->e2 ...
+            number_common_subsumers = len(all_common_subsumers) - 1
+            rels_e1 = [elem['rel'] for elem in list_first_entity]
+            rels_e2 = [elem['rel'] for elem in list_second_entity]
+
+            if number_common_subsumers > 0:
+                rels_e1_LCS = rels_e1[:-number_common_subsumers]
+                rels_e2_LCS = list(reversed(rels_e2[:-number_common_subsumers]))
+            else:
+                rels_e1_LCS = rels_e1
+                rels_e2_LCS = list(reversed(rels_e2))
+
+            path_e1_LCS = "->".join(rels_e1_LCS)
+            results.append(path_e1_LCS)
+
+            path_e2_LCS = "<-".join(rels_e2_LCS)
+            results.append(path_e2_LCS)
+
+            path_e1_LCS_e2 = "=".join([path_e1_LCS, path_e2_LCS])
+            results.append(path_e1_LCS_e2)
 
             return results
     return None
 
 
 def obtain_rel_entities(tree, entities, e1, e2):
+    """
+    :return: a list with the 'rel' parameters of entity 1 and entity 2
+    """
     first_entity_rel = ""
     second_entity_rel = ""
-    to_return = []
     lengths = {key: len(value) for key, value in entities.items()}
     if e1 in entities and e2 in entities:
         start_e1 = int(entities[e1][0])
         start_e2 = int(entities[e2][0])
         if lengths[e1] == 2 and lengths[e2] == 2:
             for i in range(1, len(tree.nodes) + 1):
-                if "start" in tree.nodes[i] and "end" in tree.nodes[i]:
-                    if tree.nodes[i]["start"] == start_e1 and tree.nodes[i]["rel"] is not None:
-                        first_entity_rel = tree.nodes[i]["rel"]
-                    elif tree.nodes[i]["start"] == start_e2 and tree.nodes[i]["rel"] is not None:
-                        second_entity_rel = tree.nodes[i]["rel"]
-    to_return.append(first_entity_rel)
-    to_return.append(second_entity_rel)
-    return to_return
-
-
-def obtain_path_lcs(tree, entities, e1, e2):
-    first_entity_tree = ""
-    second_entity_tree = ""
-    lengths = {key: len(value) for key, value in entities.items()}
-    if e1 in entities and e2 in entities:
-        start_e1 = int(entities[e1][0])
-        start_e2 = int(entities[e2][0])
-        if lengths[e1] == 2 and lengths[e2] == 2:
-            for i in range(1, len(tree.nodes) + 1):
-                if "start" in tree.nodes[i] and "end" in tree.nodes[i]:
-                    if tree.nodes[i]["start"] == start_e1:
-                        first_entity_tree = tree.nodes[i]
-                    elif tree.nodes[i]["start"] == start_e2:
-                        second_entity_tree = tree.nodes[i]
-    copy_first_entity_tree = first_entity_tree
-    copy_second_entity_tree = second_entity_tree
-    if first_entity_tree != "" and second_entity_tree != "":
-        list_first_entity = []
-        list_second_entity = []
-        while first_entity_tree['head'] is not None:
-            if "start" in first_entity_tree and "end" in first_entity_tree:
-                list_first_entity.append(first_entity_tree)
-            first_entity_tree = tree.nodes[first_entity_tree["head"]]
-        while second_entity_tree['head'] is not None:
-            if "start" in second_entity_tree and "end" in second_entity_tree:
-                list_second_entity.append(second_entity_tree)
-            second_entity_tree = tree.nodes[second_entity_tree["head"]]
-        results = []
-        stepsfirst = 0
-        for i in list_first_entity:
-            stepssecond = 0
-            for j in list_second_entity:
-                if i == j:
-                    if len(results) > 0:
-                        if results[0] > (stepsfirst + stepssecond):
-                            results[0] = stepsfirst + stepssecond
-                            results[1] = i
-                    else:
-                        results.append(stepsfirst + stepssecond)
-                        results.append(i)
-                stepssecond = stepssecond + 1
-            stepsfirst = stepsfirst + 1
-        if len(results) > 0:
-            path = ""
-            path2 = ""
-            while copy_first_entity_tree['head'] is not None:
-                if copy_first_entity_tree != results[1]:
-                    path = path + str(copy_first_entity_tree["rel"]) + "/"
-                copy_first_entity_tree = tree.nodes[copy_first_entity_tree["head"]]
-            while copy_second_entity_tree['head'] is not None:
-                if copy_second_entity_tree != results[1]:
-                    path2 = path2 + str(copy_second_entity_tree["rel"]) + "/"
-                copy_second_entity_tree = tree.nodes[copy_second_entity_tree["head"]]
-            return [path, path2]
-
-    return None
+                if first_entity_rel == "" or second_entity_rel == "":
+                    if "start" in tree.nodes[i] and "end" in tree.nodes[i]:
+                        if tree.nodes[i]["start"] == start_e1 and tree.nodes[i]["rel"] is not None:
+                            first_entity_rel = tree.nodes[i]["rel"]
+                        elif tree.nodes[i]["start"] == start_e2 and tree.nodes[i]["rel"] is not None:
+                            second_entity_rel = tree.nodes[i]["rel"]
+    return [first_entity_rel, second_entity_rel]

@@ -1,0 +1,2 @@
+DDI-DrugBank.d339.s0	DDI-DrugBank.d339.s0.e0	DDI-DrugBank.d339.s0.e1	null	path_above=/nsubj:pass/parataxis/ROOT	pos_e1=NN	pos_e2=NN	LCSpostag=NN	LCSword=Carbamazepine	LCSlemma=carbamazepine	RelE1=ROOT	RelE2=compound
+DDI-DrugBank.d339.s0	DDI-DrugBank.d339.s0.e0	DDI-DrugBank.d339.s0.e2	null	path_above=/advcl/parataxis/ROOT	pos_e1=NN	pos_e2=NNP	LCSpostag=NN	LCSword=Carbamazepine	LCSlemma=carbamazepine	RelE1=ROOT	RelE2=nsubj:pass

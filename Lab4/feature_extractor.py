@@ -1,5 +1,5 @@
 # Main function copied from the slides of the presentation
-from analyze_text import analyze
+from Lab3.analyze_text import analyze
 from extract_features import extract_features
 from os import listdir
 from xml.dom.minidom import parse
@@ -9,29 +9,28 @@ datadir = sys.argv[1]
 outfile = sys.argv[3]
 
 with open(outfile, 'w') as output:
-    # process  each  file in  directory
-    # process  each  file in  directory
+    # process each file in directory
     for f in listdir(datadir):
-        # parse  XML file , obtaining a DOM  tree
+        # parse XML file, obtaining a DOM tree
         tree = parse(datadir + "/" + f)
-        # process  each  sentence  in the  file
+        # process each sentence in the file
         sentences = tree.getElementsByTagName("sentence")
         for s in sentences:
             sid = s.attributes["id"].value
-            # get  sentence  ids
+            # get sentence ids
             stext = s.attributes["text"].value
-            # get  sentence  text
-            # load  sentence  ground  truth  entities
+            # get sentence text
+            # load sentence ground truth entities
             entities = {}
             ents = s.getElementsByTagName("entity")
             for e in ents:
                 id = e.attributes["id"].value
                 entities[id] = e.attributes["charOffset"].value.split("-")
-            # analyze  sentence  if  there  is at  least a pair of  entities
+            # analyze (generate dependency tree) sentence if there is at least a pair of entities
             if len(entities) > 1:
                 analysis = analyze(stext)
 
-            # for  each  pair of entities , decide  whether  it is DDI and  its  type
+            # for each pair of entities, decide whether it is DDI and its type
             pairs = s.getElementsByTagName("pair")
             for p in pairs:
                 # get  ground  truth
