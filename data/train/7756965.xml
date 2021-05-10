@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <document id="DDI-MedLine.d68">
-    <sentence id="DDI-MedLine.d68.s0" text="[The effect of cimetidine on the renal excretion of verografin and iodamide in dogs]&#xd;&#xa;The intravenous injection of cimetidine in a dose of 20 mg/kg enhanced verografine and iodamide excretion in chronic canine experiments. ">
+    <sentence id="DDI-MedLine.d68.s0" text="[The effect of cimetidine on the renal excretion of verografin and iodamide in dogs] The intravenous injection of cimetidine in a dose of 20 mg/kg enhanced verografine and iodamide excretion in chronic canine experiments. ">
         <entity id="DDI-MedLine.d68.s0.e0" charOffset="15-24"
             type="drug" text="cimetidine"/>
         <entity id="DDI-MedLine.d68.s0.e1" charOffset="52-61"
