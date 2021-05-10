@@ -19,42 +19,43 @@ def extract_features(tree, entities, e1, e2):
      """
     features = []
 
-    # Check if there is a verb in the middle and its type with respect to the lists of verbs
+    # If there is a verb in the middle of the entities checks its type (of the first) with respect to the lists of verbs
     rule_v_m = rule_verb_middle(tree, entities, e1, e2)
     if rule_v_m:
         features.append(rule_v_m)
 
-    """# TODO: WTF?
+    # Number of entities there are between the ones we are examining
+    features.append("{}_entities_in_between".format(int(e2[-1]) - int(e1[-1]) - 1))
+
+    # TODO: WTF?
+    """
     paths = path_verbs(tree, entities, e1, e2)
     if paths is not None:
         features.append("path1=" + paths)"""
 
-    # Checks whether an entity is above the other and returns the path between them
-    """paths = path_entities(tree, entities, e1, e2)
+    """# Checks whether an entity is above the other and returns the path between them
+    paths = path_entities(tree, entities, e1, e2)
     if paths:
         features.append("path_above=" + paths)"""
 
-    # Extracts the part of speech and 'rel' parameter of each entity
-    pos_and_rels = pos_and_rel_entities(tree, entities, e1, e2)
-    labels = ["pos_e1=", "pos_e2=", "rel_e1=", "rel_e2="]
-    for i in range(len(pos_and_rels)):
-        if pos_and_rels[i] != "":
-            features.append(labels[i] + pos_and_rels[i])
+    # Extracts the part of speech, 'rel' parameter, word and lemma of the entities
+    information_entities = info_entities(tree, entities, e1, e2)
+    labels = ["pos_e1=", "pos_e2=", "rel_e1=", "rel_e2=", "word_e1=", "word_e2=", "lemma_e1=", "lemma_e2=", "n_tokens_ib="]
+    for i in range(len(information_entities)):
+        if information_entities[i] != "":
+            features.append(labels[i] + information_entities[i])
 
-    """# Part of Speech of each entity
-    pos_entities = part_of_speech_entities(tree, entities, e1, e2)
-    features.append("pos_e1=" + pos_entities[0])
-    features.append("pos_e2=" + pos_entities[1])
-    
-    # Extracts the 'rel' parameter from the entities, their role inside the sentence
-    rel_entities = obtain_rel_entities(tree, entities, e1, e2)
-    if rel_entities is not None:
-        if rel_entities[0] != "":
-            features.append("RelE1=" + rel_entities[0])
-        if rel_entities[1] != "":
-            features.append("RelE2=" + rel_entities[1])"""
+    # Anotate all lemmas appearing before e1, between both entities and after e2
+    lemmas_before, lemmas_between, lemmas_after = lemmas_before_between_after(tree, entities, e1, e2)
+    for i in range(len(lemmas_before)):
+        features.append("lemma_bf=" + lemmas_before[i])
+    for j in range(len(lemmas_between)):
+        features.append("lemma_bt=" + lemmas_between[j])
+    for k in range(len(lemmas_after)):
+        features.append("lemma_aft=" + lemmas_after[k])
 
-    # Some information about the Least Common Subsumer of the entities
+    # Information about the Least Common Subsumer of the entities: PoS, word, lemma, paths from e1 to LCS,
+    # from LCS to e2, from e1 to e2 through LCS and type of verb if LCS is a verb
     LCS_results = LCS(tree, entities, e1, e2)
     if LCS_results:
         features.append("LCSpostag=" + LCS_results[0])
@@ -72,9 +73,6 @@ def extract_features(tree, entities, e1, e2):
 ######################################################################################################
 #####                          Auxiliary functions to extract  features                          #####
 ######################################################################################################
-
-
-# TODO: meter feature de entities: distancia entre ambas y si hay otras entities o no entre ellas
 
 
 def rule_verb_middle(analysis, entities, e1, e2):
@@ -102,9 +100,27 @@ def rule_verb_middle(analysis, entities, e1, e2):
     return None
 
 
-# TODO: meter palabras de antes, medio y después
+def lemmas_before_between_after(analysis, entities, e1, e2):
+    lemmas_before_1 = []
+    lemmas_between = []
+    lemmas_after_2 = []
 
-"""def path_verbs(analysis, entities, e1, e2):
+    start_e1 = int(entities[e1][0])
+    start_e2 = int(entities[e2][0])
+    for i in range(1, len(analysis.nodes) + 1):
+        if "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
+            if analysis.nodes[i]["start"] < start_e1:
+                lemmas_before_1.append(analysis.nodes[i]["lemma"])
+            elif start_e1 < analysis.nodes[i]["start"] < start_e2:
+                lemmas_between.append(analysis.nodes[i]["lemma"])
+            elif analysis.nodes[i]["start"] > start_e2:
+                lemmas_after_2.append(analysis.nodes[i]["lemma"])
+
+    return lemmas_before_1, lemmas_between, lemmas_after_2
+
+
+""" DE ESTA NO ESTOY MUY SEGURA, EN VERDAD SE PODRÍA MIRAR, ME OLVIDÉ JE
+def path_verbs(analysis, entities, e1, e2):
     lengths = {key: len(value) for key, value in entities.items()}
     if e1 in entities and e2 in entities:
         start_e1 = int(entities[e1][0])
@@ -140,7 +156,6 @@ def rule_verb_middle(analysis, entities, e1, e2):
                             # paths.append(["<"+analysis.nodes[i]['lemma']+">"])
                             return path + lemma + path2     # TODO: esto no tiene pinta de estar nada bien xD
     return None"""
-
 
 """ REDUNDANT
     def path_entities(analysis, entities, e1, e2):
@@ -195,8 +210,7 @@ def rule_verb_middle(analysis, entities, e1, e2):
     return None"""
 
 
-def pos_and_rel_entities(analysis, entities, e1, e2):
-    # TODO: meter word, lemma de la propia entity
+def info_entities(analysis, entities, e1, e2):
     """
     :return: part of speech tag of the two entities
     """
@@ -204,21 +218,33 @@ def pos_and_rel_entities(analysis, entities, e1, e2):
     pos_second_entity = ""
     first_entity_rel = ""
     second_entity_rel = ""
+    word_first_entity = ""
+    word_second_entity = ""
+    lemma_first_entity = ""
+    lemma_second_entity = ""
+    n_tokens_ib = 0
 
     start_e1 = int(entities[e1][0])
     start_e2 = int(entities[e2][0])
     for i in range(1, len(analysis.nodes) + 1):
         if pos_first_entity == "" or pos_second_entity == "":
             if "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
+                if start_e1 < analysis.nodes[i]["start"] < start_e2:
+                    n_tokens_ib += 1
                 if analysis.nodes[i]["start"] == start_e1 and analysis.nodes[i]["tag"] is not None and \
                         analysis.nodes[i]["rel"] is not None:
                     pos_first_entity = analysis.nodes[i]["tag"]
                     first_entity_rel = analysis.nodes[i]["rel"]
+                    word_first_entity = analysis.nodes[i]["word"]
+                    lemma_first_entity = analysis.nodes[i]["lemma"]
                 elif analysis.nodes[i]["start"] == start_e2 and analysis.nodes[i]["tag"] is not None and \
                         analysis.nodes[i]["rel"] is not None:
                     pos_second_entity = analysis.nodes[i]["tag"]
                     second_entity_rel = analysis.nodes[i]["rel"]
-    return pos_first_entity, pos_second_entity, first_entity_rel, second_entity_rel
+                    word_second_entity = analysis.nodes[i]["word"]
+                    lemma_second_entity = analysis.nodes[i]["lemma"]
+    return pos_first_entity, pos_second_entity, first_entity_rel, second_entity_rel,\
+           word_first_entity, word_second_entity, lemma_first_entity, lemma_second_entity, str(n_tokens_ib)
 
 
 def LCS(tree, entities, e1, e2):
