@@ -8,14 +8,16 @@ from sklearn.feature_extraction import DictVectorizer
 from sklearn.preprocessing import OneHotEncoder
 import pandas as pd
 
+
 def find_max_list(list):
     list_len = [len(i) for i in list]
     return max(list_len)
 
+
 def preprocess(data_train, data_devel):
     vectorizer = DictVectorizer()
     X_tokens = [{key: 1.0 for key in data_train[i][4:]} for i in range(len(data_train))]
-    #X_tokens = [data_train[i][4:] for i in range(len(data_train))]
+    # X_tokens = [data_train[i][4:] for i in range(len(data_train))]
     Y_tokens = [data_train[j][3] if len(data_train[j]) > 4 else '' for j in range(len(data_train))]
     max_value = find_max_list(X_tokens)
     features = ["Feature " + str(i + 1) for i in range(0, max_value)]
@@ -30,17 +32,18 @@ def preprocess(data_train, data_devel):
 
     return vectorizer.transform(X_tokens), Y_tokens
 
-training_model = sys.argv[1]      # trainer.dt
+
+training_model = sys.argv[1]  # trainer.dt
 training_file = sys.argv[2]   # train.feat
 
 file = open(training_file, "r")
 data_init = file.readlines()
 data = [x.strip().split("\t") for x in data_init]
-file = open("devel.feat", "r")
+file = open("test.feat", "r")
 data_init = file.readlines()
-data_devel = [x.strip().split("\t") for x in data_init]
+data_test = [x.strip().split("\t") for x in data_init]
 
-X_sentences, Y_sentences = preprocess(data, data_devel)
+X_sentences, Y_sentences = preprocess(data, data_test)
 
 # Creating and training the Decision Tree model
 classifier = svm.SVC()
