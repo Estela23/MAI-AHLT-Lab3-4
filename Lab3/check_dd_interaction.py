@@ -11,19 +11,22 @@ def check_interaction(analysis, entities, e1, e2):
         the sentence, or ’None’ if no interaction is described.
     """
 
-    rule_subj_obj = rule_subject_object_improved(analysis, entities, e1, e2)
+    """rule_subj_obj = rule_subject_object_improved(analysis, entities, e1, e2)
     if rule_subj_obj is not None:
         return rule_subj_obj
+    else:"""
+
+    rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
+    if rule_v_m is not None:
+        return rule_v_m
     else:
-
-        rule_v_m = rule_verb_middle(analysis, entities, e1, e2)
-        if rule_v_m is not None:
-            return rule_v_m
+        advise = rule_advise(analysis, entities, e1, e2)
+        if advise is not None:
+            return advise
         else:
-
-            advise = rule_advise(analysis, entities, e1, e2)
-            if advise is not None:
-                return advise
+            rule_head_value = rule_head(analysis, entities, e1, e2)
+            if rule_head_value is not None:
+                return rule_head_value
             else:
                 return None
 
