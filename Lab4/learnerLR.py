@@ -1,10 +1,10 @@
 import sys
 
 import joblib
-from sklearn import svm
 import pickle
 from matplotlib import pyplot as plt
 from sklearn.feature_extraction import DictVectorizer
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import OneHotEncoder
 import pandas as pd
 
@@ -26,7 +26,7 @@ def preprocess(data_train, data_devel):
     df_prov2 = pd.DataFrame(X_tokens_devel, columns=features)
 
     vectorizer.fit(X_tokens+X_tokens_devel)
-    joblib.dump(vectorizer, 'vectorizer.pkl')
+    #joblib.dump(vectorizer, 'vectorizer.pkl')
 
     return vectorizer.transform(X_tokens), Y_tokens
 
@@ -43,7 +43,7 @@ data_devel = [x.strip().split("\t") for x in data_init]
 X_sentences, Y_sentences = preprocess(data, data_devel)
 
 # Creating and training the Decision Tree model
-classifier = svm.SVC()
+classifier = LogisticRegression(max_iter=1000000)
 classifier.fit(X_sentences, Y_sentences)
 
 

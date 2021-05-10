@@ -36,9 +36,9 @@ SID = [data[i][:3] for i in range(len(data))]
         SID.append(fields[0:4])
         # Rest of  elements  are  features , passed  to theclassifier  of  choice  to get a prediction
         data.append({key: 1.0 for key in fields[4:]})'''
-encoder = joblib.load('vectorizer.pkl')
-#encoder = DictVectorizer()
-#encoder.fit(X_tokens_train+X_tokens)
+#encoder = joblib.load('vectorizer.pkl')
+encoder = DictVectorizer()
+encoder.fit(X_tokens_train+X_tokens)
 to_predict=encoder.transform(X_tokens)
 
 
