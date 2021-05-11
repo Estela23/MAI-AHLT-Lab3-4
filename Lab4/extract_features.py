@@ -20,12 +20,18 @@ def extract_features(tree, entities, e1, e2):
     features = []
 
     # If there is a verb in the middle of the entities checks its type (of the first) with respect to the lists of verbs
-    rule_v_m = rule_verb_middle(tree, entities, e1, e2)
-    if rule_v_m:
-        features.append(rule_v_m)
+    verbs_bf, verbs_bt, verbs_aft = rule_verbs(tree, entities, e1, e2)
+    for i in range(len(verbs_bf)):
+        features.append("verb_bf_" + verbs_bf[i])
+    for j in range(len(verbs_bt)):
+        features.append("verb_bt_" + verbs_bt[j])
+    for k in range(len(verbs_aft)):
+        features.append("verb_aft_" + verbs_aft[k])
 
     # Number of entities there are between the ones we are examining
-    features.append("{}_entities_in_between".format(int(e2[-1]) - int(e1[-1]) - 1))
+    n_entities_bt = int(e2[-1]) - int(e1[-1]) - 1
+    if n_entities_bt > 0:
+        features.append("{}_entities_in_between".format(n_entities_bt))
 
     # TODO: WTF?
     """
@@ -41,12 +47,14 @@ def extract_features(tree, entities, e1, e2):
     # Extracts the part of speech, 'rel' parameter, word and lemma of the entities
     information_entities = info_entities(tree, entities, e1, e2)
     labels = ["pos_e1=", "pos_e2=", "rel_e1=", "rel_e2=", "word_e1=", "word_e2=", "lemma_e1=", "lemma_e2=", "n_tokens_ib="]
-    for i in range(len(information_entities)):
+    for i in range(len(information_entities) - 1):
         if information_entities[i] != "":
             features.append(labels[i] + information_entities[i])
+    if information_entities[-1] != "0":
+        features.append(labels[-1] + information_entities[-1])
 
     # Anotate all lemmas appearing before e1, between both entities and after e2
-    lemmas_before, lemmas_between, lemmas_after = lemmas_before_between_after(tree, entities, e1, e2)
+    lemmas_before, lemmas_between, lemmas_after = lemmas_pos_before_between_after(tree, entities, e1, e2)
     for i in range(len(lemmas_before)):
         features.append("lemma_bf=" + lemmas_before[i])
     for j in range(len(lemmas_between)):
@@ -75,7 +83,7 @@ def extract_features(tree, entities, e1, e2):
 ######################################################################################################
 
 
-def rule_verb_middle(analysis, entities, e1, e2):
+def rule_verbs(analysis, entities, e1, e2):
     effect = ['administer', 'potentiate', 'prevent', 'react', 'produce', 'attenuate', 'treat', 'alter', 'augment',
               'influence', 'prevent', 'antagonize', 'augment', 'block', 'cause']
     mechanism = ['reduce', 'increase', 'decrease', 'induce', 'elevate', 'enhance', 'metabolize', 'inhibit', 'lower']
@@ -85,38 +93,60 @@ def rule_verb_middle(analysis, entities, e1, e2):
     start_e1 = int(entities[e1][0])
     start_e2 = int(entities[e2][0])
 
+    verbs_before = []
+    verbs_between = []
+    verbs_after = []
+
     for i in range(1, len(analysis.nodes) + 1):
         if "start" in analysis.nodes[i]:
-            if analysis.nodes[i]["tag"] in ["VB", "VBD", "MD"] and analysis.nodes[i]["start"] > start_e1 and \
+            if analysis.nodes[i]["tag"] in ["VB", "VBN", "VBD", "MD"] and analysis.nodes[i]["start"] < start_e1:
+                if analysis.nodes[i]['lemma'] in effect:
+                    verbs_before.append("effect_{}".format(analysis.nodes[i]["lemma"]))
+                elif analysis.nodes[i]['lemma'] in mechanism:
+                    verbs_before.append("mechanism_{}".format(analysis.nodes[i]["lemma"]))
+                elif analysis.nodes[i]['lemma'] in inter:
+                    verbs_before.append("int_{}".format(analysis.nodes[i]["lemma"]))
+                elif analysis.nodes[i]['lemma'] in advice:
+                    verbs_before.append("advise_{}".format(analysis.nodes[i]["lemma"]))
+            elif analysis.nodes[i]["tag"] in ["VB", "VBN", "VBD", "MD"] and analysis.nodes[i]["start"] > start_e1 and \
                     analysis.nodes[i]["end"] < start_e2:
                 if analysis.nodes[i]['lemma'] in effect:
-                    return 'verb_effect_middle'
+                    verbs_between.append("effect_{}".format(analysis.nodes[i]["lemma"]))
                 elif analysis.nodes[i]['lemma'] in mechanism:
-                    return 'verb_mechanism_middle'
+                    verbs_between.append("mechanism_{}".format(analysis.nodes[i]["lemma"]))
                 elif analysis.nodes[i]['lemma'] in inter:
-                    return 'verb_int_middle'
+                    verbs_between.append("int_{}".format(analysis.nodes[i]["lemma"]))
                 elif analysis.nodes[i]['lemma'] in advice:
-                    return "verb_advise_middle"
-    return None
+                    verbs_between.append("advise_{}".format(analysis.nodes[i]["lemma"]))
+            elif analysis.nodes[i]["tag"] in ["VB", "VBN", "VBD", "MD"] and analysis.nodes[i]["start"] > start_e2:
+                if analysis.nodes[i]['lemma'] in effect:
+                    verbs_after.append("effect_{}".format(analysis.nodes[i]["lemma"]))
+                elif analysis.nodes[i]['lemma'] in mechanism:
+                    verbs_after.append("mechanism_{}".format(analysis.nodes[i]["lemma"]))
+                elif analysis.nodes[i]['lemma'] in inter:
+                    verbs_after.append("int_{}".format(analysis.nodes[i]["lemma"]))
+                elif analysis.nodes[i]['lemma'] in advice:
+                    verbs_after.append("advise_{}".format(analysis.nodes[i]["lemma"]))
+    return verbs_before, verbs_between, verbs_after
 
 
-def lemmas_before_between_after(analysis, entities, e1, e2):
-    lemmas_before_1 = []
-    lemmas_between = []
-    lemmas_after_2 = []
+def lemmas_pos_before_between_after(analysis, entities, e1, e2):
+    lemmas_pos_before_1 = []
+    lemmas_pos_between = []
+    lemmas_pos_after_2 = []
 
     start_e1 = int(entities[e1][0])
     start_e2 = int(entities[e2][0])
     for i in range(1, len(analysis.nodes) + 1):
         if "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
-            if analysis.nodes[i]["start"] < start_e1:
-                lemmas_before_1.append(analysis.nodes[i]["lemma"])
-            elif start_e1 < analysis.nodes[i]["start"] < start_e2:
-                lemmas_between.append(analysis.nodes[i]["lemma"])
-            elif analysis.nodes[i]["start"] > start_e2:
-                lemmas_after_2.append(analysis.nodes[i]["lemma"])
+            if analysis.nodes[i]["start"] < start_e1 and analysis.nodes[i]["rel"] != "punct":
+                lemmas_pos_before_1.append(analysis.nodes[i]["lemma"] + "_" + analysis.nodes[i]["tag"])
+            elif start_e1 < analysis.nodes[i]["start"] < start_e2 and analysis.nodes[i]["rel"] != "punct":
+                lemmas_pos_between.append(analysis.nodes[i]["lemma"] + "_" + analysis.nodes[i]["tag"])
+            elif analysis.nodes[i]["start"] > start_e2 and analysis.nodes[i]["rel"] != "punct":
+                lemmas_pos_after_2.append(analysis.nodes[i]["lemma"] + "_" + analysis.nodes[i]["tag"])
 
-    return lemmas_before_1, lemmas_between, lemmas_after_2
+    return lemmas_pos_before_1, lemmas_pos_between, lemmas_pos_after_2
 
 
 """ DE ESTA NO ESTOY MUY SEGURA, EN VERDAD SE PODRÍA MIRAR, ME OLVIDÉ JE
@@ -229,7 +259,7 @@ def info_entities(analysis, entities, e1, e2):
     for i in range(1, len(analysis.nodes) + 1):
         if pos_first_entity == "" or pos_second_entity == "":
             if "start" in analysis.nodes[i] and "end" in analysis.nodes[i]:
-                if start_e1 < analysis.nodes[i]["start"] < start_e2:
+                if start_e1 < analysis.nodes[i]["start"] < start_e2 and analysis.nodes[i]["rel"] != "punct":
                     n_tokens_ib += 1
                 if analysis.nodes[i]["start"] == start_e1 and analysis.nodes[i]["tag"] is not None and \
                         analysis.nodes[i]["rel"] is not None:
@@ -297,23 +327,23 @@ def LCS(tree, entities, e1, e2):
         rels_e2 = [elem['rel'] for elem in list_second_entity]
 
         if number_common_subsumers > 0:
-            rels_e1_LCS = rels_e1[:-number_common_subsumers]
-            rels_e2_LCS = list(reversed(rels_e2[:-number_common_subsumers]))
+            e1_LCS = rels_e1[:-(number_common_subsumers + 1)] + [least_common_subsumer["tag"]]
+            e2_LCS = list(reversed(rels_e2[:-(number_common_subsumers + 1)] + [least_common_subsumer["tag"]]))
         else:
-            rels_e1_LCS = rels_e1
-            rels_e2_LCS = list(reversed(rels_e2))
+            e1_LCS = rels_e1[:-1] + [least_common_subsumer["tag"]]
+            e2_LCS = list(reversed(rels_e2[:-1] + [least_common_subsumer["tag"]]))
 
-        path_e1_LCS = "->".join(rels_e1_LCS)
+        path_e1_LCS = "->".join(e1_LCS)
         results.append(path_e1_LCS)
 
-        path_e2_LCS = "<-".join(rels_e2_LCS)
+        path_e2_LCS = "<-".join(e2_LCS)
         results.append(path_e2_LCS)
 
         path_e1_LCS_e2 = "=".join([path_e1_LCS, path_e2_LCS])
         results.append(path_e1_LCS_e2)
 
         # Check the type of verb of the LCS if it is a verb
-        if least_common_subsumer["tag"] in ["VB", "VBD", "MD"]:
+        if least_common_subsumer["tag"] in ["VB", "VBN", "VBD", "MD"]:
             if least_common_subsumer['lemma'] in effect:
                 results.append("effect")
             elif least_common_subsumer['lemma'] in mechanism:
