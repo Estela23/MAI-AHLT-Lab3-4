@@ -26,7 +26,7 @@ def preprocess(data_train, data_devel):
     df_prov2 = pd.DataFrame(X_tokens_devel, columns=features)
 
     vectorizer.fit(X_tokens+X_tokens_devel)
-    #joblib.dump(vectorizer, 'vectorizer.pkl')
+    joblib.dump(vectorizer, 'vectorizer.pkl')
 
     return vectorizer.transform(X_tokens), Y_tokens
 
@@ -36,7 +36,7 @@ training_file = sys.argv[2]   # train.feat
 file = open(training_file, "r")
 data_init = file.readlines()
 data = [x.strip().split("\t") for x in data_init]
-file = open("devel.feat", "r")
+file = open("test.feat", "r")
 data_init = file.readlines()
 data_devel = [x.strip().split("\t") for x in data_init]
 

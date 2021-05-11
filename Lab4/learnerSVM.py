@@ -39,7 +39,7 @@ training_file = sys.argv[2]   # train.feat
 file = open(training_file, "r")
 data_init = file.readlines()
 data = [x.strip().split("\t") for x in data_init]
-file = open("test.feat", "r")
+file = open("devel.feat", "r")
 data_init = file.readlines()
 data_test = [x.strip().split("\t") for x in data_init]
 
